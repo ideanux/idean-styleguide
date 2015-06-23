@@ -162,6 +162,7 @@ Configurator.prototype.validateCssCompiler = function(text) {
  */
 Configurator.prototype.validateTemplatePath = function(text) {
 	var pass = true;
+	var createDirectory = false;
 	text = text.replace("\r\n", "").replace("\n","").trim();
 	
 	if(!text) {
@@ -172,11 +173,17 @@ Configurator.prototype.validateTemplatePath = function(text) {
 		var stats = fs.lstatSync(text);
 		if (stats.isDirectory()) {
 			this.templatePath = text;
-		} else {
-			pass = false;
 		}
 	} catch (e) {
-		pass = false;
+		createDirectory = true;
+	}
+	
+	if(createDirectory){
+		try {
+			fs.mkdirSync(text);
+		} catch(e) {
+			throw e;
+		}	
 	}
 	
 	return pass;
