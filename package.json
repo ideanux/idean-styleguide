@@ -1,0 +1,16 @@
+{
+  "name": "idean-styleguide",
+  "version": "1.0.0",
+  "description": "Idean Styleguide",
+  "main": "build.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ideanux/idean-styleguide.git"
+  },
+  "author": "Idean",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ideanux/idean-styleguide/issues"
+  },
+  "homepage": "https://github.com/ideanux/idean-styleguide#readme"
+}
