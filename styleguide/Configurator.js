@@ -1,4 +1,6 @@
 var fs = require("fs");
+var CLIArgumentParser = require("./CLIArgumentParser.js");
+var Validator = require("./Validator.js");
 
 /**
  * Module for external configuration file
@@ -13,21 +15,72 @@ function Configurator(configfile) {
 	this.uncompiledCssPath = "../css/";
 	this.output = "styleguide.html";
 	this.cssCompiler = "less";
+	this.CLIParser = new CLIArgumentParser();
+	this.registerCLIBindings();
 	
 	this.hasConfig = fs.existsSync(this.configfile);
 	
 	if(this.hasConfig) {
-		this.loadConfiguration();
+		this.loadConfiguration(this.loadConfigurationFromDisk());
+	}
+	if(this.CLIParser.hasCLIArguments()){
+		this.hasConfig = true;
+		this.loadConfiguration(this.CLIParser.getMappings());
 	}
 };
 
 /**
+ * Load external config file from disk and return as object
+ * 
+ * @return {Object} The config object
+ */
+Configurator.prototype.loadConfigurationFromDisk = function() {
+	return JSON.parse(fs.readFileSync(this.configfile));
+};
+
+/**
+ * Validates a configuration object. Throws errors to console
+ * 
+ * @param {Object} Optional: a configuration object, if none is provided, existing is used
+ * @return {Bool} True if valid
+ */
+Configurator.prototype.validateConfiguration = function(config) {
+	config = config || this.getConfiguration();
+	var errors = [];
+	for(var i in config) {
+		if(config.hasOwnProperty(i)) {
+			if(!Validator.validate(i, config[i])) {
+				errors.push('Invalid value (' + config[i] + ') for ' + i);
+			}
+		}
+	}
+	if(errors.length != 0) {
+		for(var i = 0; i < errors.length; i++) {
+			console.log(errors[i]);
+		}
+		
+		return false;
+	}
+	
+	return true;
+}
+
+/**
+ * Registers CLI argument bindings to the configuration
+ */
+Configurator.prototype.registerCLIBindings = function() {
+	this.CLIParser.registerArgument(['--template-path', '-tp'], 'templatePath');
+	this.CLIParser.registerArgument(['--compiled-css-path', '-cp'], 'compiledCssPath');
+	this.CLIParser.registerArgument(['--uncompiled-css-path', '-up'], 'uncompiledCssPath');
+	this.CLIParser.registerArgument(['--output', '-o'], 'output');
+	this.CLIParser.registerArgument(['--css-compiler', '-cc'], 'cssCompiler');
+	this.CLIParser.registerArgument(['--title', '-t'], 'styleguideTitle');
+}
+
+/**
  * Load external config file and populate defaults
  */
-Configurator.prototype.loadConfiguration = function() {
-	var readData = fs.readFileSync(this.configfile);
-	var myConfig = JSON.parse(readData);
-	
+Configurator.prototype.loadConfiguration = function(myConfig) {
 	if(myConfig.compiledCssPath) {
 		this.compiledCssPath = myConfig.compiledCssPath;
 	}
