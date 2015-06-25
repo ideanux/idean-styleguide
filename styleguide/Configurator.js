@@ -64,148 +64,6 @@ Configurator.prototype.getConfiguration = function() {
 };
 
 /**
- * Check if the path has .css otherwise append and save to local value
- * @param  {String} text Path to compiled CSS
- * @return {Bool}        test passed
- */
-Configurator.prototype.validateCompiledCssPath = function(text) {
-	var pass = true;
-	text = text.replace("\r\n", "").replace("\n","").trim();
-	
-	if(text.length > 0) {
-		if(text.indexOf(".css", text.length - 4) === -1){
-			text = text+".css";
-		}
-		
-		this.compiledCssPath = text;
-	}
-	
-	console.log("Compiled CSS file set to: "+this.compiledCssPath);
-	return pass;
-};
-
-/**
- * Validate file path and save to local value
- * @param  {String} text Path to root uncompiled CSS folder
- * @return {Bool}        test passed
- */
-Configurator.prototype.validateUncompiledCssPath = function(text) {
-	var pass = true;
-	text = text.replace("\r\n", "").replace("\n","").trim();
-	
-	if(text.length > 0) {
-		if(text.indexOf("/", text.length - 1) === -1) {
-			text = text+"/";
-		}
-		
-		this.uncompiledCssPath = text;
-	}
-	
-	console.log("Uncompiled folder set to: "+this.uncompiledCssPath);
-	return pass;
-};
-
-/**
- * Check if the path has .html otherwise append and save to local value
- * @param  {String} text Path to file to output
- * @return {Bool}        test passed
- */
-Configurator.prototype.validateOutput = function(text) {
-	var pass = true;
-	text = text.replace("\r\n", "").replace("\n","").trim();
-	
-	if(text.length > 0) {
-		if(text.indexOf(".html", text.length - 5) === -1) {
-			text = text+".html";
-		}
-		
-		this.output = text;
-	}
-	
-	console.log("Output file set to: "+this.output);
-	return pass;
-};
-
-/**
- * Check if the css compiler is valid and save to local value
- * @param  {String} text Css compiler
- * @return {Bool}        test passed
- */
-Configurator.prototype.validateCssCompiler = function(text) {
-	var pass = true;
-	text = text.replace("\r\n", "").replace("\n","").trim();
-	
-	if(text.length > 0) {
-		if(text.toLowerCase() === "less") {
-			this.cssCompiler = "less";
-		} else if(text.toLowerCase() === "sass") {
-			this.cssCompiler = "sass";
-		} else if(text.toLowerCase() === "stylus") {
-			this.cssCompiler = "stylus";
-		} else {
-			console.log("Unsupported compiler, we only support less, sass or stylus!");
-			pass = false;
-		}
-	}
-	
-	if(pass) {
-		console.log("Compiler set to: "+this.cssCompiler);
-	}
-	
-	return pass;
-};
-
-/**
- * Validates the path to the templates.
- * @param  {String} text Template path
- * @return {Bool}        test passed
- */
-Configurator.prototype.validateTemplatePath = function(text) {
-	var pass = true;
-	var createDirectory = false;
-	text = text.replace("\r\n", "").replace("\n","").trim();
-	
-	if(!text) {
-		text = this.templatePath;
-	}
-	
-	try {
-		var stats = fs.lstatSync(text);
-		if (stats.isDirectory()) {
-			this.templatePath = text;
-		}
-	} catch (e) {
-		createDirectory = true;
-	}
-	
-	if(createDirectory){
-		try {
-			fs.mkdirSync(text);
-		} catch(e) {
-			throw e;
-		}	
-	}
-	
-	return pass;
-};
-
-/**
- * Validates the style guide title.
- * @param  {String} text The style guide title
- * @return {Bool}        test passed
- */
-Configurator.prototype.validateStyleguideTitle = function(text) {
-	var pass = true;
-	text = text.replace("\r\n", "").replace("\n","").trim();
-
-	if(text) {
-		this.styleguideTitle = text;
-	}
-	
-	return pass;
-};
-
-/**
  * Save the data to an external file for future use
  * @param  {function} onSuccess Function to run on successful configuration
  */
@@ -262,25 +120,68 @@ Configurator.prototype.configurate = function(onSuccess) {
 	process.stdin.on(
 		'data', 
 		function (text) {
-			var pass = true;
+			var pass = false;
+			text = text.replace("\r\n", "").replace("\n","").trim();
 			switch(step){
 				case 0: 
-					pass = this.validateCompiledCssPath(text); 
+					if(text === '') {
+						text = this.compiledCssPath;
+					}
+					if(Validator.validate('compiledCssPath', text)) {
+						console.log("Compiled CSS file set to: " + text);
+						this.compiledCssPath = text;
+						pass = true;
+					}
 				break;
 				case 1: 
-					pass = this.validateUncompiledCssPath(text); 
+					if(text === '') {
+						text = this.uncompiledCssPath;
+					}
+					if(Validator.validate('uncompiledCssPath', text)) {
+						console.log("Uncompiled folder set to: " + text);
+						this.uncompiledCssPath = text;
+						pass = true;
+					}
 				break;
 				case 2: 
-					pass = this.validateOutput(text); 
+					if(text === '') {
+						text = this.output;
+					}
+					if(Validator.validate('output', text)) {
+						console.log("Output file set to: " + text);
+						this.output = text;
+						pass = true;
+					}
 				break;
 				case 3: 
-					pass = this.validateCssCompiler(text); 
+					if(text === '') {
+						text = this.cssCompiler;
+					}
+					if(Validator.validate('cssCompiler', text)) {
+						console.log("Compiler set to: " + text);
+						this.cssCompiler = text;
+						pass = true;
+					}
 				break;
 				case 4: 
-					pass = this.validateTemplatePath(text); 
+					if(text === '') {
+						text = this.templatePath;
+					}
+					if(Validator.validate('templatePath', text)) {
+						console.log("Template path set to: " + text);
+						this.templatePath = text;
+						pass = true;
+					}
 				break;
 				case 5: 
-					pass = this.validateStyleguideTitle(text); 
+					if(text === '') {
+						text = this.styleguideTitle;
+					}
+					if(Validator.validate('styleguideTitle', text)) {
+						console.log("Styleguide title set to: " + text);
+						this.styleguideTitle = text;
+						pass = true;
+					}
 				break;
 				default: 
 					pass = false; 
