@@ -134,10 +134,13 @@ Configurator.prototype.completeInput = function(onSuccess) {
 				console.log(err.message);
 				return false;
 			}
+			
+			console.log("Config Saved");
+			
 			if(typeof onSuccess === 'function') {
 				onSuccess();
 			}
-			console.log("Config Saved");
+			
 			return true;
 		}
 	);
