@@ -25,6 +25,19 @@ You will be prompted to setup the project with the following:
 
 A override.css file will be created in the templates folder, you can use this file to write custom or overwrite CSS for the styleguide.
 
+Command line arguments
+----------------------
+
+You can override the configuration by using these command line arguments. If there's is no configuration file present, default values will be used for missing arguments.
+
+    -cp [ --compiled-css-path ] arg      See compiledCssPath.
+    -up [ --uncompiled-css-path ] arg    See uncompiledCssPath.
+    -o  [ --output ] arg                 See output.
+    -cc [ --css-compiler ] arg           See cssCompiler.
+    -tp [ --template-path ] arg          See templatePath.
+    -t  [ --title ] arg                  See styleguideTitle.
+
+
 Comment syntax:
 ---------------
 
