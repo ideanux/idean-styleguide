@@ -6,10 +6,15 @@ var Configurator = require("./styleguide/Configurator.js");
 var Compiler = require("./styleguide/Compiler.js");
 var ConfigHandler = new Configurator("styleguide.config.json");
 
-function runProcess() {
 
-	console.log("Beginning Idean Styleguide generation...");
+function runProcess() {
+	if(!ConfigHandler.validateConfiguration()) {
+		console.log('Errors were found in the configuration. Quitting..');
+		return false;
+	}
+	
 	var config = ConfigHandler.getConfiguration();
+	console.log("Beginning Idean Styleguide generation...");
 	var compiler = new Compiler(config);
 	var overrideCss = OverrideCss(config.templatePath, 'override.css');
 	
